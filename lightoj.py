@@ -9,6 +9,7 @@ import requests
 import pickle
 import os
 import urllib
+from bs4 import BeautifulSoup
 
 
 
@@ -39,7 +40,16 @@ def problem(fname):
          print('File not available rightnow')
       
 
-#def submit():
+def sub_list(ln):
+   cookie()
+   source_code = requests.get('http://lightoj.com/volume_usersubmissions.php').text
+   soup = BeautifulSoup(source_code,features="lxml")
+   table = soup.find('table',id = "mytable3")
+   print(soup)
+   td = table.find_all('td')
+   data = [i.text for i in td]
+#   need to fix little bit.. with selenium web
+   
    
 
 def login(u,p):
@@ -65,7 +75,11 @@ def err(ln,lx):
                   --help"')
 
 def chk(x):
-   if(x<1000 or x>1434):
+   try:
+      x = int(x)
+      if(x<1000 or x>1434):
+         raise Exception
+   except:
       sys.exit("please select problem between 1000-1434")
 
 def cookie():
@@ -81,25 +95,25 @@ def cookie():
    return s
 
 
-#def submit(s,idd,fname,xx):
-#   xx = xx[-1:]
-#   if xx=='c':
-#      xx = 'C'
-#   elif xx == 'a':
-#      xx = 'JAVA'
-#   elif xx=='p':
-#      xx = 'C++'
-#   print(fname)
-#   try:
-#      with open(fname,'rb') as f:
-#         filedata = f.read()
-#   except:
-#      sys.exit('File not found!!')
-#   
-#   print(filedata)
-#   data = {'subproblem':idd,'language':xx,'code':filedata}
-#   s.post('http://lightoj.com/volume_submit.php',data)
-#   print("HEER")
+def submit(s,idd,fname,xx):
+   xx = xx[-1:]
+   if xx=='c':
+      xx = 'C'
+   elif xx == 'a':
+      xx = 'JAVA'
+   elif xx=='p':
+      xx = 'C++'
+   else:
+      sys.exit("Can't Identify Programming Language")
+   try:
+      with open(fname,'rb') as f:
+         filedata = f.read()
+   except:
+      sys.exit('File not found!!')
+      
+   data = {'sub_problem':idd,'language':xx,'code':filedata,'submit':'Submit'}
+   s.post('http://lightoj.com/volume_submit.php',data)
+   
    
 if __name__ == "__main__":
    print(sys.argv)
@@ -121,20 +135,25 @@ if __name__ == "__main__":
          print('Login successful!')
    elif sys.argv[1]=='-o':
       err(ln,3)
-      chk(int(sys.argv[2]))
+      chk(sys.argv[2])
       problem(sys.argv[2]+'.PDF')
    elif sys.argv[1]=='-f':
       err(ln,3)
-      chk(int(sys.argv[2]))
+      chk(sys.argv[2])
       download(sys.argv[2]+'.PDF')
       problem(sys.argv[2]+'.PDF')
-#   elif sys.argv[1]=='-a':
-#      err(ln,2)
-#      zipdown()
-#   elif sys.argv[1]=='-s':
-#      err(ln,4)
-#      s = cookie()
-#      submit(s,sys.argv[2],dr+sys.argv[3],sys.argv[3])
+   elif sys.argv[1]=='-a':
+      err(ln,2)
+      zipdown()
+   elif sys.argv[1]=='-s':
+      err(ln,4)
+      chk(sys.argv[2])
+      s = cookie()
+      submit(s,sys.argv[2],dr+sys.argv[3],sys.argv[3])
+      sub_list(1)
+   elif sys.argv[1]=='-sub':
+      sub_list(10)
+      
       
    
    
